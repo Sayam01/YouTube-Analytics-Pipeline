@@ -21,12 +21,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install gspread oauth2client google-api-python-client isodate pandas
+          pip install gspread oauth2client google-api-python-client isodate pandas jupyter nbconvert
 
-      - name: Run Colab Notebook
-        uses: colab-on-github/action@v1
-        with:
-          notebook: 'YT_Pipeline.ipynb'
-
+      - name: Run Jupyter Notebook
+        run: jupyter nbconvert --to notebook --execute YT_Pipeline.ipynb --output YT_Pipeline_executed.ipynb
         env:
           GOOGLE_SERVICE_ACCOUNT_KEY_CONTENT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY_CONTENT }}
