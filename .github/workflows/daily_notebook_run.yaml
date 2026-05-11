@@ -1,0 +1,41 @@
+name: Daily Colab Notebook Run (6 AM IST)
+
+on:
+  schedule:
+    # Runs daily at 00:30 UTC, which is 6:00 AM IST (UTC+5:30)
+    - cron: '30 0 * * *'
+  workflow_dispatch: # Allows manual triggering from the GitHub Actions tab
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install gspread oauth2client google-api-python-client isodate pandas
+          # Add any other Python packages your notebook might use, e.g., matplotlib, seaborn, plotly
+
+      - name: Run Colab Notebook
+        uses: colab-on-github/action@v1
+        with:
+          notebook: 'YT_Pipeline.ipynb' # <--- IMPORTANT: Replace with your notebook's path in the repo
+        env:
+          # Pass the Google Service Account key content as an environment variable to the notebook
+          GOOGLE_SERVICE_ACCOUNT_KEY_CONTENT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY_CONTENT }}
+
+      - name: Commit changes (optional: if your notebook modifies files or the notebook itself)
+        # This step is useful if your notebook generates new data files or updates itself.
+        # If your notebook only reads data and writes to Google Sheets, you might not need this.
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Automated notebook run output'
+          branch: main # Or your default branch, e.g., 'master'
